@@ -1,0 +1,11 @@
+<script>
+    $('[data-target="#navbarSupportedContent"]').click(function(){
+        let navbarToggle = $(this).data('target');
+        $(navbarToggle).slideToggle();
+    })
+
+    $('.nav-link[href="'+ location.pathname +'"]').parent().addClass('active')
+</script>
+
+</body>
+</html>
