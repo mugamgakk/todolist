@@ -3,15 +3,23 @@ const app = express();
 app.use(express.urlencoded({extended: true}));
 app.set('view engine', 'ejs')
 app.use(express.static('src'))
+require('dotenv').config()
 const MongoClient = require('mongodb').MongoClient;
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+
+app.use(session({secret : '비밀코드', resave : true, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session()); 
 
 let db;
-MongoClient.connect('mongodb+srv://1234:1234@cluster0.0f9rg.mongodb.net/?retryWrites=true&w=majority', { useUnifiedTopology: true }, function (err, client) {
+MongoClient.connect(process.env.DB_URL, { useUnifiedTopology: true }, function (err, client) {
 	if (err) return console.log(err)
 	db = client.db('doapp');
 
-	app.listen(8080, function () {
-		console.log('listening on 8080')
+	app.listen(process.env.PORT, function () {
+		console.log('listening on ' + process.env.PORT)
 	});
 });
 
@@ -53,16 +61,16 @@ app.get('/list', (req,res)=>{
     })
 })
 
-app.get('/detail/:id', (req,res)=>{
+app.get('/post/:id', (req,res)=>{
     let {id} = req.params;
 
     db.collection('post').findOne({_id : parseFloat(id)}, function(err,result){
         console.log(result)
-        res.render('detail.ejs', {post : result})
+        res.render('post.ejs', {post : result})
     })
 })
 
-app.put('/detail', (req,res)=>{
+app.put('/post', (req,res)=>{
     console.log(req.body)
 
     db.collection('post')
@@ -82,3 +90,28 @@ app.delete('/post-delete', (req,res)=>{
         res.send('삭제')
     })
 })
+
+app.post('/login', passport.authenticate('local',{
+    failureRedirect : 'fail'
+}), function(req,res){
+    res.redirect('/')
+})
+
+passport.use(new LocalStrategy({
+    usernameField: 'id',
+    passwordField: 'pw',
+    session: true,
+    passReqToCallback: false,
+  }, function (입력한아이디, 입력한비번, done) {
+    //console.log(입력한아이디, 입력한비번);
+    db.collection('login').findOne({ id: 입력한아이디 }, function (에러, 결과) {
+      if (에러) return done(에러)
+  
+      if (!결과) return done(null, false, { message: '존재하지않는 아이디요' })
+      if (입력한비번 == 결과.pw) {
+        return done(null, 결과)
+      } else {
+        return done(null, false, { message: '비번틀렸어요' })
+      }
+    })
+  }));

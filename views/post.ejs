@@ -24,7 +24,7 @@
         let formData = $(this).serializeArray();
 
         $.ajax({
-            url : '/detail',
+            url : '/post',
             type : 'PUT',
             data : formData
         }).done(function(data){
