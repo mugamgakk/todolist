@@ -14,15 +14,4 @@
     </form>
 </div>
 
-<script>
-    
-    $('#reg-btn').click(function(e){
-        e.preventDefault()
-        let formData = new FormData($('#form')[0]);
-        for(let key of formData){
-            console.log(key)
-        }
-    })
-</script>
-
 <%-include('footer.ejs')%>

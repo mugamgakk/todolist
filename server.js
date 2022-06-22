@@ -24,11 +24,61 @@ app.get('/newpost', (req,res)=>{
 })
 
 app.post('/newpost', (req,res)=>{
-    console.log(req.body)
+
+    let {title, work} = req.body;
+
+    db.collection('count').findOne({name : 'count'}, function(err,result){
+
+        var obj = {
+            _id : result.number,
+            title,
+            content: work,
+        }
+
+        db.collection('post').insertOne(obj, function(err,result){
+            db.collection('count').updateOne({name : 'count'}, {$inc : {number : 1}}, function(err,result){
+
+                res.redirect('/list')
+            })
+        })
+
+    })
+
+   
 })
 
 app.get('/list', (req,res)=>{
     db.collection('post').find().toArray(function(err, result){
         res.render('list.ejs', { posts : result })
+    })
+})
+
+app.get('/detail/:id', (req,res)=>{
+    let {id} = req.params;
+
+    db.collection('post').findOne({_id : parseFloat(id)}, function(err,result){
+        console.log(result)
+        res.render('detail.ejs', {post : result})
+    })
+})
+
+app.put('/detail', (req,res)=>{
+    console.log(req.body)
+
+    db.collection('post')
+    .updateOne({_id : parseInt(req.body.id)} , {$set : {title : req.body.title, content : req.body.work}}, function(err,result){
+        res.status(200).send('success')
+        console.log(result)
+    })
+
+})
+
+app.delete('/post-delete', (req,res)=>{
+    
+    console.log(req.body)
+
+    db.collection('post').deleteOne({_id : parseInt(req.body.id)}, (err,result)=>{
+
+        res.send('삭제')
     })
 })

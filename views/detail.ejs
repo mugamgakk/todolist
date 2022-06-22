@@ -1,0 +1,63 @@
+<%-include('header.ejs')%>
+
+<div class="container">
+    <form class="mt-3" id="form">
+        <div class="form-group">
+          <label for="title">글 제목</label>
+          <input type="text" name="title" class="form-control" value="<%=post.title%>" id="title" />
+        </div>
+        <div class="form-group">
+          <label for="work">할 일</label>
+          <textarea name="work" class="form-control" value="<%=post.content%>" id="work" rows="10"><%=post.content%></textarea>
+        </div>
+        <input type="hidden" value="<%=post._id%>" name="id" id="id">
+        <button type="submit" id="fix-btn" class="btn btn-dark">수정</button>
+        <button type="button" id="remove-btn" class="btn btn-danger">삭제</button>
+    </form>
+</div>
+
+
+<script>
+    $('#form').on('submit', function(e){
+        e.preventDefault();
+
+        let formData = $(this).serializeArray();
+
+        $.ajax({
+            url : '/detail',
+            type : 'PUT',
+            data : formData
+        }).done(function(data){
+            location.href = '/list'
+            console.log(data);
+        })
+
+    })
+
+    $('#remove-btn').click(function(){
+        if(confirm('정말 삭제 하시겠습니까')){
+            deletePost();
+        }else{
+            return
+        }
+        
+    })
+
+    const deletePost = ()=>{
+
+        $.ajax({
+            url : '/post-delete',
+            type: 'DELETE',
+            data : {
+                id : $('#id').val()
+            }
+        }).done(function(data){
+            console.log(data);
+            location.href = '/list'
+        })
+    }
+
+</script>
+
+
+<%-include('footer.ejs')%>
