@@ -28,8 +28,7 @@ app.post('/newpost', (req,res)=>{
 })
 
 app.get('/list', (req,res)=>{
-    db.collection('post').find().toArray(function(에러, 결과){
-        // console.log(결과)
-        res.render('list.ejs', { posts : 결과 })
+    db.collection('post').find().toArray(function(err, result){
+        res.render('list.ejs', { posts : result })
     })
 })
